@@ -1221,14 +1221,14 @@ pragma solidity ^0.8.0;
 
 
 
-contract DogsUnleashedMinions is ERC721Enumerable, Ownable {
+contract DogsUnleashedRoaming is ERC721Enumerable, Ownable {
   using Strings for uint256;
 
   string public baseURI;
   string public baseExtension = ".json";
-  uint256 public cost = 0.06 ether;
+  uint256 public cost = 5 ether;
   uint256 public maxSupply = 5000;
-  uint256 public maxMintAmount = 15;
+  uint256 public maxMintAmount = 50;
   bool public paused = false;
   mapping(address => bool) public whitelisted;
 
