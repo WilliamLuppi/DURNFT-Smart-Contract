@@ -1221,15 +1221,16 @@ pragma solidity ^0.8.0;
 
 
 
-contract DogsUnleashedRoaming is ERC721Enumerable, Ownable {
+contract DogsUnleashedMinions is ERC721Enumerable, Ownable {
   using Strings for uint256;
 
   string public baseURI;
   string public baseExtension = ".json";
-  uint256 public cost = 5 ether;
+  uint256 public cost = 0.06 ether;
   uint256 public maxSupply = 5000;
-  uint256 public maxMintAmount = 50;
-  bool public paused = true;
+  uint256 public maxMintAmount = 15;
+  bool public paused = false;
+  mapping(address => bool) public whitelisted;
 
   constructor(
     string memory _name,
@@ -1252,6 +1253,12 @@ contract DogsUnleashedRoaming is ERC721Enumerable, Ownable {
     require(_mintAmount > 0);
     require(_mintAmount <= maxMintAmount);
     require(supply + _mintAmount <= maxSupply);
+
+    if (msg.sender != owner()) {
+        if(whitelisted[msg.sender] != true) {
+          require(msg.value >= cost * _mintAmount);
+        }
+    }
 
     for (uint256 i = 1; i <= _mintAmount; i++) {
       _safeMint(_to, supply + i);
@@ -1310,14 +1317,24 @@ contract DogsUnleashedRoaming is ERC721Enumerable, Ownable {
     paused = _state;
   }
  
+ function whitelistUser(address _user) public onlyOwner {
+    whitelisted[_user] = true;
+  }
+ 
+  function removeWhitelistUser(address _user) public onlyOwner {
+    whitelisted[_user] = false;
+ }
+ 
   function withdraw() public payable onlyOwner {
         // This will pay addresses the % of the initial sale.
         address wallet1 = 0x2239aC96D697f0C6edb012b0A90f3156b6fA60Cc;
         address wallet2 = 0x0D4997109ef126027b2f195C9788cccecEE4fF69;
+        address wallet3 = 0x8957e65aFb268D4bFB0E94f950C2624D40Ca7241;
         // Just duplicate the line above to add more wallet addresses
         
         uint256 payment = address(this).balance * 10 / 100;
         uint256 payment2 = address(this).balance * 15 / 100;
+        uint256 payment3 = address(this).balance * 15 / 100;
 
         (bool p1, ) = payable(wallet1).call{value: payment }("");
         require(p1);
@@ -1325,8 +1342,11 @@ contract DogsUnleashedRoaming is ERC721Enumerable, Ownable {
         (bool p2, ) = payable(wallet2).call{value: payment2}("");
         require(p2);
 
-        (bool p3, ) = payable(owner()).call{value: address(this).balance}("");
+        (bool p3, ) = payable(wallet3).call{value: payment3}("");
         require(p3);
+
+        (bool p4, ) = payable(owner()).call{value: address(this).balance}("");
+        require(p4);
     
     }
 }
